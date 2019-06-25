@@ -32,6 +32,37 @@
           "command": "extension.createTestFile"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Create Test File Configuration",
+      "properties": {
+        "createTestFile.nameTemplate": {
+          "type": "string",
+          "default": "test_{filename}",
+          "description": "Template for filename of created test files"
+        },
+        "createTestFile.languages": {
+          "type": "object",
+          "description": "Block that contains config for specific languages",
+          "default": {},
+          "additionalProperties": false,
+          "patternProperties": {
+            "^\\[\\w+\\]$": {
+              "type": "object",
+              "description": "Config for specific languages",
+              "additionalProperties": false,
+              "properties": {
+                "createTestFile.nameTemplate": {
+                  "type": "string",
+                  "default": "test_{filename}",
+                  "description": "Template for filename of created test files"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "scripts": {
