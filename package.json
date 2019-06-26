@@ -42,6 +42,18 @@
           "default": "test_{filename}",
           "description": "Template for filename of created test files"
         },
+        "createTestFile.pathMaps": {
+          "type": "array",
+          "default": [],
+          "description": "Path matching expressions that set locations for created test files based on the path of the source file",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pathPattern": "string",
+              "testFilePath": "string"
+            }
+          }
+        },
         "createTestFile.languages": {
           "type": "object",
           "description": "Block that contains config for specific languages",

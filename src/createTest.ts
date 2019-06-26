@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { ExtensionConfiguration } from './extensionConfiguration';
 
 export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
     return getExtensionSettings(srcUri).then((settings: ExtensionConfiguration) => {
         const nameTemplate = settings.get('nameTemplate');
-        let pathMapper = (srcPath: string): string => srcPath.replace('/app', '/spec');
+        const pathMapper = matchingPathMap(srcUri, settings);
         let uri = srcUri.with({ path: testPath(srcUri.path, nameTemplate, pathMapper) });
         let we = new vscode.WorkspaceEdit();
         we.createFile(uri, { overwrite: false });
@@ -18,19 +19,52 @@ export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
     });
 }
 
-type PathMapper = (srcPath: string) => string;
-
 export function testPath(srcPath: string, 
                          nameTemplate: string, 
-                         pathMapper?: PathMapper): string {
+                         pathMap?: PathMap): string {
     let ext = path.extname(srcPath);
     let file = path.basename(srcPath, ext);
     let dir = path.dirname(srcPath);
-    if (typeof pathMapper !== 'undefined') {
-        dir = pathMapper(dir);
+    if (typeof pathMap !== 'undefined') {
+        dir = destPath(dir, pathMap);
     }
     let testBasename = nameTemplate.replace('{filename}', file) + ext;
     return path.posix.join(dir, testBasename);
+}
+
+interface PathMap {
+    pathPattern: string;
+    testFilePath: string;
+}
+
+function destPath(srcPath: string, pathMap: PathMap): string {
+    let matcher = new RegExp(pathMap.pathPattern);
+    let match = srcPath.match(matcher);
+    if (!match) {
+        throw new Error('pathMap does not match provided path');
+    }
+
+    let pathSegments = srcPath.split(match[0]);
+
+    let destPattern = pathMap.testFilePath;
+    for (let i = 1; i < match.length; i++) {
+        destPattern = destPattern.replace(`\$${1}`, match[i]);
+    }
+
+    pathSegments.splice(1, 0, destPattern);
+    return pathSegments.join('');
+}
+
+function matchingPathMap(srcUri: vscode.Uri, settings: ExtensionConfiguration): PathMap | undefined {
+    let relativePath = vscode.workspace.asRelativePath(srcUri);
+    let pathMaps = settings.get('pathMaps') as Array<PathMap>;
+    for (let pathMap of pathMaps) {
+        let matcher = new RegExp(pathMap.pathPattern);
+        if (relativePath.match(matcher)) {
+            return pathMap;
+        }
+    }
+    return undefined;
 }
 
 function getExtensionSettings(srcUri: vscode.Uri): Thenable<ExtensionConfiguration> {
@@ -46,22 +80,4 @@ function getExtensionSettings(srcUri: vscode.Uri): Thenable<ExtensionConfigurati
         let generalConfig = vscode.workspace.getConfiguration('createTestFile');
         return new ExtensionConfiguration(langConfig, generalConfig);
     });
-}
-
-class ExtensionConfiguration {
-    languageConfiguration: any;
-    generalConfiguration: vscode.WorkspaceConfiguration;
-
-    constructor(languageConfiguration: any, generalConfiguration: vscode.WorkspaceConfiguration) {
-        this.languageConfiguration = languageConfiguration;
-        this.generalConfiguration = generalConfiguration;
-    }
-
-    get(key: string, defaultValue?: any): any {
-        let value = this.languageConfiguration[`createTestFile.${key}`];
-        if (value !== undefined) {
-            return value;
-        }
-        return this.generalConfiguration.get(key, defaultValue);
-    }
 }

@@ -13,7 +13,7 @@ suite('testPath', function() {
     test('remaps windows path if mapping argument provided', function() {
         let srcPath = '/c:/Users/bob/code/app/Foo.cs';
         let nameTemplate = 'Test{filename}';
-        let pathMapper = (srcPath: string): string => srcPath.replace('/app', '/spec');
+        let pathMapper = { pathPattern: 'app(/?.*)', testFilePath: 'spec$1' };
 
         let expected = '/c:/Users/bob/code/spec/TestFoo.cs';
         assert.equal(expected, testPath(srcPath, nameTemplate, pathMapper));
