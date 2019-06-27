@@ -19,8 +19,8 @@ export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
     });
 }
 
-export function testPath(srcPath: string, 
-                         nameTemplate: string, 
+export function testPath(srcPath: string,
+                         nameTemplate: string,
                          pathMap?: PathMap): string {
     let ext = path.extname(srcPath);
     let file = path.basename(srcPath, ext);
@@ -48,7 +48,11 @@ function destPath(srcPath: string, pathMap: PathMap): string {
 
     let destPattern = pathMap.testFilePath;
     for (let i = 1; i < match.length; i++) {
-        destPattern = destPattern.replace(`\$${1}`, match[i]);
+        let replaceText = match[i];
+        if (typeof replaceText === 'undefined') {
+            replaceText = "";
+        }
+        destPattern = destPattern.replace(`\$${1}`, replaceText);
     }
 
     pathSegments.splice(1, 0, destPattern);
