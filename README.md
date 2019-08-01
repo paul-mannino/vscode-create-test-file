@@ -14,6 +14,7 @@ This extension is in early alpha, so for now, you can only install from source. 
 * Navigate to your vscode extensions folder (generally, this will be `%USERPROFILE%\.vscode\extensions` on Windows,
   `~/.vscode/extensions` on Mac and Linux)
 * Clone this repo into the directory
+* Navigate into the cloned directory and run `npm install` followed by `npm run compile`
 * Restart VSCode
 
 ## Configuration
