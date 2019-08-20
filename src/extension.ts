@@ -1,23 +1,9 @@
 import * as vscode from 'vscode';
-import { createTest } from './createTest';
+import { findTestCommand, createTestCommand } from './commands';
 
 export function activate(context: vscode.ExtensionContext) {
-    let disposable = vscode.commands.registerCommand('extension.createTestFile', (uri) => {
-        if (typeof uri === 'undefined') {
-            if (vscode.window.activeTextEditor) {
-                uri = vscode.window.activeTextEditor.document.uri;
-            }
-        }
-        if (!uri) {
-            vscode.window.showErrorMessage('Cannot create spec file. File must be open in editor.');
-        }
-
-        createTest(uri).then((testUri) => {
-            vscode.window.showTextDocument(testUri);
-        });
-    });
-
-    context.subscriptions.push(disposable);
+    context.subscriptions.push(createTestCommand());
+    context.subscriptions.push(findTestCommand());
 }
 
 export function deactivate() {}

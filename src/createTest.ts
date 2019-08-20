@@ -3,10 +3,7 @@ import * as path from 'path';
 import { ExtensionConfiguration } from './extensionConfiguration';
 
 export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
-    return getExtensionSettings(srcUri).then((settings: ExtensionConfiguration) => {
-        const nameTemplate = settings.get('nameTemplate');
-        const pathMapper = matchingPathMap(srcUri, settings);
-        let uri = srcUri.with({ path: testPath(srcUri.path, nameTemplate, pathMapper) });
+    return inferTestUri(srcUri).then(uri => {
         let we = new vscode.WorkspaceEdit();
         we.createFile(uri, { overwrite: false });
         return vscode.workspace.applyEdit(we).then((success) => {
@@ -16,6 +13,12 @@ export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
             }
             return uri;
         });
+    });
+}
+
+export function findTest(srcUri: vscode.Uri): Thenable<vscode.TextDocument> {
+    return inferTestUri(srcUri).then(uri => {
+        return vscode.workspace.openTextDocument(uri);
     });
 }
 
@@ -30,6 +33,14 @@ export function testPath(srcPath: string,
     }
     let testBasename = nameTemplate.replace('{filename}', file) + ext;
     return path.posix.join(dir, testBasename);
+}
+
+function inferTestUri(srcUri: vscode.Uri): Thenable<vscode.Uri> {
+    return getExtensionSettings(srcUri).then((settings: ExtensionConfiguration) => {
+        const nameTemplate = settings.get('nameTemplate');
+        const pathMapper = matchingPathMap(srcUri, settings);
+        return srcUri.with({ path: testPath(srcUri.path, nameTemplate, pathMapper) });
+    });
 }
 
 interface PathMap {
