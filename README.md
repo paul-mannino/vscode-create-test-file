@@ -8,15 +8,6 @@ the `spec` folder, you can define rules such that for any file `app/foo/bar/file
 with `spec/foo/bar/filename_spec.rb`. These settings can be customized for each filetype, and you may create multiple
 path mappers if you have multiple conventions for where you create tests.
 
-## Installation
-
-This extension is in early alpha, so for now, you can only install from source. Steps:
-* Navigate to your vscode extensions folder (generally, this will be `%USERPROFILE%\.vscode\extensions` on Windows,
-  `~/.vscode/extensions` on Mac and Linux)
-* Clone this repo into the directory
-* Navigate into the cloned directory and run `npm install` followed by `npm run compile`
-* Restart VSCode
-
 ## Configuration
 
 ```javascript
