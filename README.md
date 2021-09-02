@@ -1,30 +1,43 @@
-# VSCode Create Test File Extension
+# Create Test File
 
-This is an extension that adds a command for create a test file with a name and path inferred from a currently
-open file (or one selected file from the sidebar).
+Create Test File is an extension for (Visual Studio Code)[https://code.visualstudio.com/] that adds a command for creating test files with names and paths inferred from currently-open source files (or ones selected from the sidebar).
 
-For example, if your application code lives under the `app` directory in your workspace and your test code lives under
-the `spec` folder, you can define rules such that for any file `app/foo/bar/filename.rb`, you will create or open a file
-with `spec/foo/bar/filename_spec.rb`. These settings can be customized for each filetype, and you may create multiple
-path mappers if you have multiple conventions for where you create tests.
+For example, if your source code lives under the `app` folder in your workspace and your test code lives under the `spec` folder, you can define rules such that for any source file, e.g., `app/foo/bar/filename.rb`, you can create a test file inferred from the name, e.g., `spec/foo/bar/filename_spec.rb`. These settings can be customized for each filetype, and you may create multiple path mappers if you have multiple conventions for where you create tests.
 
 ## Configuration
 
+Simple configuration example:
+
 ```javascript
-// Basic settings
-"createTestFile.nameTemplate": "{filename}_spec", // If file is named foo.bar, will create test named foo_spec.bar
-"createTestFile.languages": {
-    "[javascript]": {
-        "createTestFile.nameTemplate": "{filename}.test" // For javascript, if file is foo.js, will create foo.test.js
+// If file is named foo.bar, will create test named foo_spec.bar
+'createTestFile.nameTemplate': '{filename}_spec',
+
+// Language-specific settings
+'createTestFile.languages': {
+    // For javascript, if file is foo.js, will create foo.test.js
+    '[javascript]': {
+        'createTestFile.nameTemplate': '{filename}.test'
     }
 },
-"createTestFile.pathMaps": [
+
+// Defines rule such that any file under app/ will have a test file created
+// under spec/ Rules will be applied in the order they are defined. The first
+// rule to match the file path will be used.
+'createTestFile.pathMaps': [
     {
-        // Defines rule such that any file under app/ will have a test file created under spec/
-        // Rules will be applied in the order they are defined. The first rule to match the file path will be used.
-        "pathPattern": "app(/.*)?", // Regex file path matcher
-        "testFilePath": "spec$1" // $1, $2, etc. will be replaced with the matching text from the pathPattern
+        // Regex file path matcher and resulting test file path. $1, $2, etc.
+        // will be replaced with the matching text from the pathPattern
+        pathPattern: 'app(/.*)?',
+        testFilePath: 'spec$1'
+    },
+    {
+        // Example configuration for Jest tests
+        pathPattern: '(.*)',
+        testFilePath: '$1/__tests__/'
     }
 ]
 ```
 
+## Command
+
+To create a test file, run `Create Test File` from the command pallet, or select it from the right-click menu on the selected file in the sidebar.
