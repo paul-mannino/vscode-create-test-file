@@ -1,32 +1,32 @@
 import * as vscode from 'vscode';
-import { createTest, findTest } from './createTest';
+import { createTestFile, findTest } from './createTestFile';
 
 const NO_URI_ERROR = (action: string): string => {
     return `Cannot ${action} spec file. File must be open in editor or selected in file explorer.`
 }
 
-export function createTestCommand(): vscode.Disposable {
+export function createTestFileCommand(): vscode.Disposable {
     return vscode.commands.registerCommand('extension.createTestFile', (uri) => {
-        let srcUri = ensureUri(uri);
+        const srcUri = ensureUri(uri);
 
         if (!srcUri) {
             vscode.window.showErrorMessage(NO_URI_ERROR('create'));
         }
 
-        createTest(srcUri).then((testUri) => {
+        createTestFile(srcUri).then((testUri) => {
             vscode.window.showTextDocument(testUri);
         });
     });
 }
 
-export function findTestCommand(): vscode.Disposable {
+export function findTestFileCommand(): vscode.Disposable {
     return vscode.commands.registerCommand('extension.findTestFile', (uri) => {
-        let srcUri = ensureUri(uri);
+        const srcUri = ensureUri(uri);
 
         if (srcUri) {
             findTest(srcUri).then(
                 testDocument => vscode.window.showTextDocument(testDocument),
-                _ex => vscode.window.showErrorMessage(`Unable to find test file matching ${srcUri.path}.`)
+                () => vscode.window.showErrorMessage(`Unable to find test file matching ${srcUri.path}.`)
             );
         } else {
             vscode.window.showErrorMessage(NO_URI_ERROR('find'));

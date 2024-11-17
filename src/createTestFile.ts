@@ -2,13 +2,13 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { ExtensionConfiguration } from './extensionConfiguration';
 
-export function createTest(srcUri: vscode.Uri): Thenable<vscode.Uri> {
+export function createTestFile(srcUri: vscode.Uri): Thenable<vscode.Uri> {
     return inferTestUri(srcUri).then(uri => {
-        let we = new vscode.WorkspaceEdit();
+        const we = new vscode.WorkspaceEdit();
         we.createFile(uri, { overwrite: false });
         return vscode.workspace.applyEdit(we).then((success) => {
             if (success) {
-                let relPath = vscode.workspace.asRelativePath(uri);
+                const relPath = vscode.workspace.asRelativePath(uri);
                 vscode.window.showInformationMessage(`Created ${relPath}`);
             }
             return uri;
@@ -25,13 +25,13 @@ export function findTest(srcUri: vscode.Uri): Thenable<vscode.TextDocument> {
 export function testPath(srcPath: string,
                          nameTemplate: string,
                          pathMap?: PathMap): string {
-    let ext = path.extname(srcPath);
-    let file = path.basename(srcPath, ext);
+    const ext = path.extname(srcPath);
+    const file = path.basename(srcPath, ext);
     let dir = path.dirname(srcPath);
     if (typeof pathMap !== 'undefined') {
         dir = destPath(dir, pathMap);
     }
-    let testBasename = nameTemplate.replace('{filename}', file) + ext;
+    const testBasename = nameTemplate.replace('{filename}', file).replace('{extension}', ext);
     return path.posix.join(dir, testBasename);
 }
 
@@ -49,13 +49,13 @@ interface PathMap {
 }
 
 function destPath(srcPath: string, pathMap: PathMap): string {
-    let matcher = new RegExp(pathMap.pathPattern);
-    let match = srcPath.match(matcher);
+    const matcher = new RegExp(pathMap.pathPattern);
+    const match = srcPath.match(matcher);
     if (!match) {
         throw new Error('pathMap does not match provided path');
     }
 
-    let pathSegments = srcPath.split(match[0]);
+    const pathSegments = srcPath.split(match[0]);
 
     let destPattern = pathMap.testFilePath;
     for (let i = 1; i < match.length; i++) {
@@ -63,7 +63,7 @@ function destPath(srcPath: string, pathMap: PathMap): string {
         if (typeof replaceText === 'undefined') {
             replaceText = "";
         }
-        destPattern = destPattern.replace(`\$${1}`, replaceText);
+        destPattern = destPattern.replace(`$${1}`, replaceText);
     }
 
     pathSegments.splice(1, 0, destPattern);
@@ -71,10 +71,10 @@ function destPath(srcPath: string, pathMap: PathMap): string {
 }
 
 function matchingPathMap(srcUri: vscode.Uri, settings: ExtensionConfiguration): PathMap | undefined {
-    let relativePath = vscode.workspace.asRelativePath(srcUri);
-    let pathMaps = settings.get('pathMaps') as Array<PathMap>;
-    for (let pathMap of pathMaps) {
-        let matcher = new RegExp(pathMap.pathPattern);
+    const relativePath = vscode.workspace.asRelativePath(srcUri);
+    const pathMaps = settings.get('pathMaps') as PathMap[];
+    for (const pathMap of pathMaps) {
+        const matcher = new RegExp(pathMap.pathPattern);
         if (relativePath.match(matcher)) {
             return pathMap;
         }
@@ -84,15 +84,15 @@ function matchingPathMap(srcUri: vscode.Uri, settings: ExtensionConfiguration): 
 
 function getExtensionSettings(srcUri: vscode.Uri): Thenable<ExtensionConfiguration> {
     return vscode.workspace.openTextDocument(srcUri).then((doc: vscode.TextDocument) => {
-        let docLang = doc.languageId;
-        let langSettings =  vscode.workspace.getConfiguration('createTestFile.languages');
-        let langMatcher = new RegExp(`\\[${docLang}\\]`);
-        let docLangKey = Object.keys(langSettings).find((key: string) => key.match(langMatcher));
+        const docLang = doc.languageId;
+        const langSettings =  vscode.workspace.getConfiguration('createTestFile.languages');
+        const langMatcher = new RegExp(`\\[${docLang}\\]`);
+        const docLangKey = Object.keys(langSettings).find((key: string) => key.match(langMatcher));
         let langConfig = {};
         if (docLangKey) {
             langConfig = langSettings[docLangKey];
         }
-        let generalConfig = vscode.workspace.getConfiguration('createTestFile');
+        const generalConfig = vscode.workspace.getConfiguration('createTestFile');
         return new ExtensionConfiguration(langConfig, generalConfig);
     });
 }

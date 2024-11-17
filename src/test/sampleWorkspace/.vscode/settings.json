@@ -1,0 +1,9 @@
+{
+    "createTestFile.nameTemplate": "{filename}.test.{extension}",
+    "createTestFile.pathMaps": [],
+    "createTestFile.languages": {
+        "[ruby]": {
+            "createTestFile.nameTemplate": "{filename}_spec.{extension}"
+        }
+    }
+}
