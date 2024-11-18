@@ -1,9 +1,7 @@
 import * as vscode from 'vscode';
-import { findTestCommand, createTestCommand } from './commands';
+import { findTestFileCommand, createTestFileCommand } from './commands';
 
 export function activate(context: vscode.ExtensionContext) {
-    context.subscriptions.push(createTestCommand());
-    context.subscriptions.push(findTestCommand());
+    context.subscriptions.push(createTestFileCommand());
+    context.subscriptions.push(findTestFileCommand());
 }
-
-export function deactivate() {}

@@ -12,10 +12,13 @@ path mappers if you have multiple conventions for where you create tests.
 
 ```javascript
 // Basic settings
-"createTestFile.nameTemplate": "{filename}_spec", // If file is named foo.bar, will create test named foo_spec.bar
+"createTestFile.nameTemplate": "{filename}_spec.{extension}", // If file is named foo.bar, will create test named foo_spec.bar
 "createTestFile.languages": {
     "[javascript]": {
-        "createTestFile.nameTemplate": "{filename}.test" // For javascript, if file is foo.js, will create foo.test.js
+        "createTestFile.nameTemplate": "{filename}.test.{extension}" // For javascript, if file is foo.js, will create foo.test.js
+    },
+    "[elixir]": {
+        "createTestFile.nameTemplate": "{filename}_test.exs"
     }
 },
 "createTestFile.pathMaps": [
